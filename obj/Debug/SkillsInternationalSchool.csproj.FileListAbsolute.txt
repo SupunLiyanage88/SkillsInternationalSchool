@@ -1,0 +1,10 @@
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\bin\Debug\SkillsInternationalSchool.exe.config
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\bin\Debug\SkillsInternationalSchool.exe
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\bin\Debug\SkillsInternationalSchool.pdb
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\obj\Debug\SkillsInternationalSchool.csproj.AssemblyReference.cache
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\obj\Debug\SkillsInternationalSchool.LoginForm.resources
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\obj\Debug\SkillsInternationalSchool.RegistrationForm.resources
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\obj\Debug\SkillsInternationalSchool.csproj.GenerateResource.cache
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\obj\Debug\SkillsInternationalSchool.csproj.CoreCompileInputs.cache
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\obj\Debug\SkillsInternationalSchool.exe
+C:\Users\liyan\OneDrive\Documents\My Works\SkillsInternationalSchool\obj\Debug\SkillsInternationalSchool.pdb
