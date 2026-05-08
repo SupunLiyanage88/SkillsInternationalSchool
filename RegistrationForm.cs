@@ -11,6 +11,8 @@ namespace SkillsInternationalSchool
     {
         readonly string connectionString = ConfigurationManager.ConnectionStrings["SchoolDb"].ConnectionString;
 
+        private ErrorProvider errorProvider;
+        private readonly DatabaseHelper _dbHelper;
         private ComboBox cboRegNo;
         private TextBox txtFirstName;
         private TextBox txtLastName;
@@ -35,6 +37,8 @@ namespace SkillsInternationalSchool
         public RegistrationForm()
         {
             InitializeComponent();
+            errorProvider = new ErrorProvider();
+            _dbHelper = new DatabaseHelper();
             InitializeRegistrationControls();
             LoadRegNumbers();
         }
@@ -64,12 +68,14 @@ namespace SkillsInternationalSchool
             Controls.Add(cboRegNo);
 
             y += rowGap;
-            AddLabel("First Name", labelX, y);
+            AddLabel("First Name *", labelX, y);
             txtFirstName = AddTextBox(inputX, y - 3, inputWidth, "txtFirstName");
+            txtFirstName.Leave += TxtFirstName_Leave;
 
             y += rowGap;
-            AddLabel("Last Name", labelX, y);
+            AddLabel("Last Name *", labelX, y);
             txtLastName = AddTextBox(inputX, y - 3, inputWidth, "txtLastName");
+            txtLastName.Leave += TxtLastName_Leave;
 
             y += rowGap;
             AddLabel("Date of Birth", labelX, y);
@@ -82,7 +88,7 @@ namespace SkillsInternationalSchool
             Controls.Add(dtpDOB);
 
             y += rowGap;
-            AddLabel("Gender", labelX, y);
+            AddLabel("Gender *", labelX, y);
             rbMale = new RadioButton
             {
                 Text = "Male",
@@ -105,8 +111,9 @@ namespace SkillsInternationalSchool
             txtAddress = AddTextBox(inputX, y - 3, inputWidth, "txtAddress", true);
 
             y += rowGap;
-            AddLabel("Email", labelX, y);
+            AddLabel("Email *", labelX, y);
             txtEmail = AddTextBox(inputX, y - 3, inputWidth, "txtEmail");
+            txtEmail.Leave += TxtEmail_Leave;
 
             y += rowGap;
             AddLabel("Mobile Phone", labelX, y);
@@ -207,6 +214,47 @@ namespace SkillsInternationalSchool
             return textBox;
         }
 
+        private void TxtFirstName_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtFirstName.Text))
+            {
+                errorProvider.SetError(txtFirstName, "First Name is required");
+            }
+            else
+            {
+                errorProvider.SetError(txtFirstName, "");
+            }
+        }
+
+        private void TxtLastName_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtLastName.Text))
+            {
+                errorProvider.SetError(txtLastName, "Last Name is required");
+            }
+            else
+            {
+                errorProvider.SetError(txtLastName, "");
+            }
+        }
+
+        private void TxtEmail_Leave(object sender, EventArgs e)
+        {
+            string email = txtEmail.Text.Trim();
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                errorProvider.SetError(txtEmail, "Email is required");
+            }
+            else if (!_dbHelper.IsValidEmail(email))
+            {
+                errorProvider.SetError(txtEmail, "Invalid email format");
+            }
+            else
+            {
+                errorProvider.SetError(txtEmail, "");
+            }
+        }
+
         private void LoadRegNumbers()
         {
             try
@@ -242,7 +290,11 @@ namespace SkillsInternationalSchool
         {
             try
             {
-                if (!ValidateFields()) return;
+                if (!ValidateFields()) 
+                {
+                    MessageBox.Show("Please fix the validation errors before registering.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
                 using (SqlConnection con = new SqlConnection(connectionString))
                 {
@@ -251,17 +303,17 @@ namespace SkillsInternationalSchool
                                 VALUES (@regNo, @fName, @lName, @dob, @gender, @addr, @email, @mobile, @home, @parent, @nic, @contact)";
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.AddWithValue("@regNo", GetNextRegNo());
-                    cmd.Parameters.AddWithValue("@fName", txtFirstName.Text);
-                    cmd.Parameters.AddWithValue("@lName", txtLastName.Text);
+                    cmd.Parameters.AddWithValue("@fName", txtFirstName.Text.Trim());
+                    cmd.Parameters.AddWithValue("@lName", txtLastName.Text.Trim());
                     cmd.Parameters.AddWithValue("@dob", dtpDOB.Value);
                     cmd.Parameters.AddWithValue("@gender", rbMale.Checked ? "Male" : "Female");
-                    cmd.Parameters.AddWithValue("@addr", txtAddress.Text);
-                    cmd.Parameters.AddWithValue("@email", txtEmail.Text);
-                    cmd.Parameters.AddWithValue("@mobile", txtMobile.Text);
-                    cmd.Parameters.AddWithValue("@home", txtHomePhone.Text);
-                    cmd.Parameters.AddWithValue("@parent", txtParentName.Text);
-                    cmd.Parameters.AddWithValue("@nic", txtNIC.Text);
-                    cmd.Parameters.AddWithValue("@contact", txtContactNo.Text);
+                    cmd.Parameters.AddWithValue("@addr", txtAddress.Text.Trim());
+                    cmd.Parameters.AddWithValue("@email", txtEmail.Text.Trim());
+                    cmd.Parameters.AddWithValue("@mobile", txtMobile.Text.Trim());
+                    cmd.Parameters.AddWithValue("@home", txtHomePhone.Text.Trim());
+                    cmd.Parameters.AddWithValue("@parent", txtParentName.Text.Trim());
+                    cmd.Parameters.AddWithValue("@nic", txtNIC.Text.Trim());
+                    cmd.Parameters.AddWithValue("@contact", txtContactNo.Text.Trim());
 
                     con.Open();
                     cmd.ExecuteNonQuery();
@@ -281,7 +333,11 @@ namespace SkillsInternationalSchool
             try
             {
                 int regNo = GetSelectedRegNo();
-                if (regNo <= 0) return;
+                if (regNo <= 0) 
+                {
+                    MessageBox.Show("Please select a registration to delete.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
                 DialogResult res = MessageBox.Show("Are you sure you want to delete this record?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (res == DialogResult.Yes)
@@ -376,14 +432,49 @@ namespace SkillsInternationalSchool
             rbMale.Checked = false;
             rbFemale.Checked = false;
             dtpDOB.Value = DateTime.Now;
+            errorProvider.Clear();
         }
 
         private bool ValidateFields()
         {
-            if (string.IsNullOrWhiteSpace(txtFirstName.Text)) return false;
-            if (string.IsNullOrWhiteSpace(txtLastName.Text)) return false;
-            if (!rbMale.Checked && !rbFemale.Checked) return false;
-            return true;
+            errorProvider.Clear();
+            bool isValid = true;
+
+            // First Name validation
+            if (string.IsNullOrWhiteSpace(txtFirstName.Text))
+            {
+                errorProvider.SetError(txtFirstName, "First Name is required");
+                isValid = false;
+            }
+
+            // Last Name validation
+            if (string.IsNullOrWhiteSpace(txtLastName.Text))
+            {
+                errorProvider.SetError(txtLastName, "Last Name is required");
+                isValid = false;
+            }
+
+            // Gender validation
+            if (!rbMale.Checked && !rbFemale.Checked)
+            {
+                errorProvider.SetError(rbMale, "Please select a gender");
+                isValid = false;
+            }
+
+            // Email validation
+            string email = txtEmail.Text.Trim();
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                errorProvider.SetError(txtEmail, "Email is required");
+                isValid = false;
+            }
+            else if (!_dbHelper.IsValidEmail(email))
+            {
+                errorProvider.SetError(txtEmail, "Invalid email format (e.g., user@domain.com)");
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         private int GetNextRegNo()

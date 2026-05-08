@@ -116,9 +116,9 @@ namespace SkillsInternationalSchool
                     int count = (int)cmd.ExecuteScalar();
                     if (count > 0)
                     {
-                        this.Hide();
-                        RegistrationForm regForm = new RegistrationForm();
-                        regForm.Show();
+                            this.Hide();
+                            DashboardForm dashboard = new DashboardForm();
+                            dashboard.Show();
                     }
                     else
                     {
