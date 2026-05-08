@@ -13,6 +13,10 @@ namespace SkillsInternationalSchool
 
         private ErrorProvider errorProvider;
         private readonly DatabaseHelper _dbHelper;
+        private TableLayoutPanel formLayout;
+        private FlowLayoutPanel genderPanel;
+        private FlowLayoutPanel buttonPanel;
+        private FlowLayoutPanel linkPanel;
         private ComboBox cboRegNo;
         private TextBox txtFirstName;
         private TextBox txtLastName;
@@ -38,6 +42,7 @@ namespace SkillsInternationalSchool
         {
             InitializeComponent();
             errorProvider = new ErrorProvider();
+            errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             _dbHelper = new DatabaseHelper();
             InitializeRegistrationControls();
             LoadRegNumbers();
@@ -46,140 +51,178 @@ namespace SkillsInternationalSchool
         private void InitializeRegistrationControls()
         {
             Text = "Skills International School - Registration";
-            ClientSize = new Size(760, 640);
+            ClientSize = new Size(900, 720);
+            MinimumSize = new Size(760, 640);
             StartPosition = FormStartPosition.CenterScreen;
+            AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
+            BackColor = Color.WhiteSmoke;
+            Padding = new Padding(20);
 
-            int labelX = 35;
-            int inputX = 170;
-            int y = 25;
-            int rowGap = 34;
-            int inputWidth = 240;
+            formLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ColumnCount = 2,
+                RowCount = 0,
+                Padding = new Padding(8, 6, 12, 12),
+                Margin = new Padding(0)
+            };
+            formLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 170F));
+            formLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            Controls.Add(formLayout);
 
-            AddLabel("Registration No", labelX, y);
+            Label lblTitle = new Label
+            {
+                Text = "Student Registration",
+                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+                ForeColor = Color.DarkBlue,
+                AutoSize = true,
+                Margin = new Padding(0, 0, 0, 12)
+            };
+            AddSpanningControl(lblTitle);
+
             cboRegNo = new ComboBox
             {
-                Location = new Point(inputX, y - 3),
-                Width = inputWidth,
+                Dock = DockStyle.Fill,
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Name = "cboRegNo"
+                Name = "cboRegNo",
+                Margin = new Padding(0, 3, 0, 3)
             };
             cboRegNo.SelectedIndexChanged += cboRegNo_SelectedIndexChanged;
-            Controls.Add(cboRegNo);
+            AddFieldRow("Registration No", cboRegNo);
 
-            y += rowGap;
-            AddLabel("First Name *", labelX, y);
-            txtFirstName = AddTextBox(inputX, y - 3, inputWidth, "txtFirstName");
+            txtFirstName = CreateTextBox("txtFirstName");
             txtFirstName.Leave += TxtFirstName_Leave;
+            AddFieldRow("First Name *", txtFirstName);
 
-            y += rowGap;
-            AddLabel("Last Name *", labelX, y);
-            txtLastName = AddTextBox(inputX, y - 3, inputWidth, "txtLastName");
+            txtLastName = CreateTextBox("txtLastName");
             txtLastName.Leave += TxtLastName_Leave;
+            AddFieldRow("Last Name *", txtLastName);
 
-            y += rowGap;
-            AddLabel("Date of Birth", labelX, y);
             dtpDOB = new DateTimePicker
             {
-                Location = new Point(inputX, y - 3),
-                Width = inputWidth,
-                Name = "dtpDOB"
+                Dock = DockStyle.Fill,
+                Name = "dtpDOB",
+                Margin = new Padding(0, 3, 0, 3)
             };
-            Controls.Add(dtpDOB);
+            AddFieldRow("Date of Birth", dtpDOB);
 
-            y += rowGap;
-            AddLabel("Gender *", labelX, y);
+            genderPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                WrapContents = false,
+                Margin = new Padding(0, 1, 0, 1)
+            };
             rbMale = new RadioButton
             {
                 Text = "Male",
-                Location = new Point(inputX, y - 2),
                 AutoSize = true,
-                Name = "rbMale"
+                Name = "rbMale",
+                Margin = new Padding(0, 4, 18, 4)
             };
             rbFemale = new RadioButton
             {
                 Text = "Female",
-                Location = new Point(inputX + 90, y - 2),
                 AutoSize = true,
-                Name = "rbFemale"
+                Name = "rbFemale",
+                Margin = new Padding(0, 4, 0, 4)
             };
-            Controls.Add(rbMale);
-            Controls.Add(rbFemale);
+            genderPanel.Controls.Add(rbMale);
+            genderPanel.Controls.Add(rbFemale);
+            AddFieldRow("Gender *", genderPanel);
 
-            y += rowGap;
-            AddLabel("Address", labelX, y);
-            txtAddress = AddTextBox(inputX, y - 3, inputWidth, "txtAddress", true);
+            txtAddress = CreateTextBox("txtAddress", true);
+            txtAddress.ScrollBars = ScrollBars.Vertical;
+            AddFieldRow("Address", txtAddress);
 
-            y += rowGap;
-            AddLabel("Email *", labelX, y);
-            txtEmail = AddTextBox(inputX, y - 3, inputWidth, "txtEmail");
+            txtEmail = CreateTextBox("txtEmail");
             txtEmail.Leave += TxtEmail_Leave;
+            AddFieldRow("Email *", txtEmail);
 
-            y += rowGap;
-            AddLabel("Mobile Phone", labelX, y);
-            txtMobile = AddTextBox(inputX, y - 3, inputWidth, "txtMobile");
+            txtMobile = CreateTextBox("txtMobile");
+            AddFieldRow("Mobile Phone", txtMobile);
 
-            y += rowGap;
-            AddLabel("Home Phone", labelX, y);
-            txtHomePhone = AddTextBox(inputX, y - 3, inputWidth, "txtHomePhone");
+            txtHomePhone = CreateTextBox("txtHomePhone");
+            AddFieldRow("Home Phone", txtHomePhone);
 
-            y += rowGap;
-            AddLabel("Parent Name", labelX, y);
-            txtParentName = AddTextBox(inputX, y - 3, inputWidth, "txtParentName");
+            txtParentName = CreateTextBox("txtParentName");
+            AddFieldRow("Parent Name", txtParentName);
 
-            y += rowGap;
-            AddLabel("NIC", labelX, y);
-            txtNIC = AddTextBox(inputX, y - 3, inputWidth, "txtNIC");
+            txtNIC = CreateTextBox("txtNIC");
+            AddFieldRow("NIC", txtNIC);
 
-            y += rowGap;
-            AddLabel("Contact No", labelX, y);
-            txtContactNo = AddTextBox(inputX, y - 3, inputWidth, "txtContactNo");
+            txtContactNo = CreateTextBox("txtContactNo");
+            AddFieldRow("Contact No", txtContactNo);
 
+            buttonPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                WrapContents = false,
+                FlowDirection = FlowDirection.LeftToRight,
+                Margin = new Padding(0, 16, 0, 0)
+            };
             btnRegister = new Button
             {
                 Text = "Register",
-                Location = new Point(35, y + 45),
-                Width = 90
+                Width = 110,
+                Height = 34,
+                Margin = new Padding(0, 0, 10, 0)
             };
             btnRegister.Click += btnRegister_Click;
 
             btnDelete = new Button
             {
                 Text = "Delete",
-                Location = new Point(140, y + 45),
-                Width = 90
+                Width = 110,
+                Height = 34,
+                Margin = new Padding(0, 0, 10, 0)
             };
             btnDelete.Click += btnDelete_Click;
 
             btnClear = new Button
             {
                 Text = "Clear",
-                Location = new Point(245, y + 45),
-                Width = 90
+                Width = 110,
+                Height = 34,
+                Margin = new Padding(0)
             };
             btnClear.Click += btnClear_Click;
+            buttonPanel.Controls.Add(btnRegister);
+            buttonPanel.Controls.Add(btnDelete);
+            buttonPanel.Controls.Add(btnClear);
+            AddSpanningControl(buttonPanel);
 
+            linkPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                WrapContents = false,
+                FlowDirection = FlowDirection.LeftToRight,
+                Margin = new Padding(0, 10, 0, 0)
+            };
             llLogout = new LinkLabel
             {
                 Text = "Logout",
-                Location = new Point(35, y + 95),
-                AutoSize = true
+                AutoSize = true,
+                Margin = new Padding(0, 0, 12, 0)
             };
             llLogout.LinkClicked += llLogout_LinkClicked;
 
             llExit = new LinkLabel
             {
                 Text = "Exit",
-                Location = new Point(100, y + 95),
-                AutoSize = true
+                AutoSize = true,
+                Margin = new Padding(0)
             };
             llExit.LinkClicked += llExit_LinkClicked;
 
-            Controls.Add(btnRegister);
-            Controls.Add(btnDelete);
-            Controls.Add(btnClear);
-            Controls.Add(llLogout);
-            Controls.Add(llExit);
+            linkPanel.Controls.Add(llLogout);
+            linkPanel.Controls.Add(llExit);
+            AddSpanningControl(linkPanel);
         }
 
         private Label AddLabel(string text, int x, int y)
@@ -212,6 +255,54 @@ namespace SkillsInternationalSchool
 
             Controls.Add(textBox);
             return textBox;
+        }
+
+        private TextBox CreateTextBox(string name, bool multiline = false)
+        {
+            TextBox textBox = new TextBox
+            {
+                Name = name,
+                Dock = DockStyle.Fill,
+                Margin = new Padding(0, 3, 0, 3)
+            };
+
+            if (multiline)
+            {
+                textBox.Multiline = true;
+                textBox.Height = 72;
+            }
+
+            return textBox;
+        }
+
+        private void AddFieldRow(string labelText, Control control)
+        {
+            int rowIndex = formLayout.RowCount;
+            formLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            Label label = new Label
+            {
+                Text = labelText,
+                AutoSize = true,
+                Anchor = AnchorStyles.Right,
+                TextAlign = ContentAlignment.MiddleRight,
+                Margin = new Padding(0, 7, 12, 0)
+            };
+
+            formLayout.Controls.Add(label, 0, rowIndex);
+            control.Margin = new Padding(0, 3, 0, 3);
+            formLayout.Controls.Add(control, 1, rowIndex);
+            formLayout.RowCount++;
+        }
+
+        private void AddSpanningControl(Control control)
+        {
+            int rowIndex = formLayout.RowCount;
+            formLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            control.Margin = new Padding(0, 6, 0, 0);
+            formLayout.Controls.Add(control, 0, rowIndex);
+            formLayout.SetColumnSpan(control, 2);
+            formLayout.RowCount++;
         }
 
         private void TxtFirstName_Leave(object sender, EventArgs e)
